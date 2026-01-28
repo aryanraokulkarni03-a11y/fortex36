@@ -70,16 +70,16 @@ EMAIL_FROM=noreply@skillsync.app
 
 You'll need:
 > MongoDB Atlas account (free tier works)
-> Groq API key (free, sign up at console.groq.com)
-> SMTP server for sending verification emails
+> , Groq API key (free, sign up at console.groq.com)
+> , SMTP server for sending verification emails
 
 ## Current Status
 This  is a working prototype built for SRM AP. The matching algorithm is solid, but there's room for optimization. Event coordination works, ratings system is functional.
 Known issues:
 
 > GraphRAG responses can be slow with large user bases (working on caching)
-> Need better error handling on the frontend
-> Mobile experience could use polish
+> , Need better error handling on the frontend
+> , Mobile experience could use polish
 
 
 Made by On-Sight for FORTEX36
