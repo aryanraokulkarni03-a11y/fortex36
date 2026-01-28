@@ -1,85 +1,91 @@
 # SkillSync
 
-> AI-Powered Peer Learning Network for SRM AP. Built this to solve the problem of finding study partners who actually know what they're doing.
+<div align="center">
+  <h3>AI-Powered Peer Learning Network</h3>
+  <p>Connect with the right mentor, master any skill. Powered by GraphRAG.</p>
+  
+  [![Frontend](https://img.shields.io/badge/Frontend-Next.js_14-black?style=flat-square&logo=next.js)](https://nextjs.org)
+  [![Backend](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
+  [![AI](https://img.shields.io/badge/AI-GraphRAG-blueviolet?style=flat-square)](https://github.com/microsoft/graphrag)
+  [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
+</div>
 
-## What this does: 
-> SkillSync uses GraphRAG (graph-based retrieval augmented generation) to match students based on their actual skills, not just what courses they're taking. You tell it what you know and what you want to learn, and it connects you with people who can help or collaborate.
-Main features:
+---
 
-Smart matching using knowledge graphs and LLM reasoning
-Skill-based peer discovery (not just "who's in my class")
-Event coordination for study sessions and hackathons
-Peer rating system to keep quality high
+## 🚀 Overview
 
-The core idea: stop randomly DMing people on Discord hoping they know React. Let the AI figure out who can actually help you.
+**SkillSync** connects students based on their **actual skills**, not just their courses. It uses a **GraphRAG (Retrieval-Augmented Generation)** engine to map the campus knowledge graph, enabling intelligent matching based on proficiency, year gap, and mutual exchange opportunities.
 
-## Project Structure 
+**Built for FORTEX36 Hackathon at SRM AP.**
 
-```
-skillsync/
-├── directives/          # Implementation specs
-│   ├── skillsync.md     # Master overview
-│   ├── auth.md          # Authentication flow
-│   ├── matching.md      # GraphRAG matching logic
-│   ├── events.md        # Event system
-│   └── ratings.md       # Rating mechanism
-│
-├── execution/           # Backend microservices
-│   ├── auth/            # Auth service
-│   ├── graphrag/        # AI matching engine
-│   ├── events/          # Event management
-│   └── ratings/         # Rating system
-│
-├── frontend/            # Next.js application
-├── graphrag/            # Python GraphRAG service
-├── .tmp/                # Temporary files
-├── docs/                # Additional documentation
-└── .env.example         # Environment variables template             
-```
+### ✨ Key Features
 
-## Tech Stack - MERN & other requisites
+*   **🧠 Intelligent Matching:** Finds mentors based on proficiency, seniority, and branch.
+*   **🤝 Mutual Exchange:** Identifies "I teach you X, you teach me Y" opportunities.
+*   **🎨 Premium UI/UX:** "Tech-Brutalist Luxury" design with scroll animations and micro-interactions.
+*   **⚡ Real-time Graph:** Live visualization of the campus skill network.
+*   **📱 Mobile First:** Fully responsive design for students on the go.
+
+---
+
+## 🛠️ Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Frontend | Next.js 14, TypeScript, Tailwind, shadcn/ui |
-| Backend | Node.js, Express.js, MongoDB |
-| AI | Groq (Llama 3.3), NetworkX, LangChain.js |
-| Auth | NextAuth.js, JWT |
-| Deploy | Vercel, MongoDB Atlas, Railway |
+| **Frontend** | Next.js 14, TypeScript, Tailwind CSS v4, Framer Motion |
+| **Backend** | Python, FastAPI, NetworkX (Graph Engine) |
+| **Data** | MongoDB (Production), In-Memory Graph (Demo) |
+| **AI/ML** | Custom GraphRAG Algorithm, Groq (Llama 3) |
+| **DevOps** | Docker, PowerShell Automation |
 
+---
 
-## Environment Variables
+## 🏁 Quick Start (Demo Mode)
 
-Create `.env` file:
+We provide a unified startup script for Windows.
 
-```env
-# MongoDB
-MONGODB_URI=mongodb+srv://...
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/aryanraokulkarni03-a11y/fortex36.git
+    cd skillsync
+    ```
 
-# NextAuth
-NEXTAUTH_SECRET=your-secret
-NEXTAUTH_URL=http://localhost:3000
+2.  **Run the startup script:**
+    ```powershell
+    .\scripts\start-dev.ps1
+    ```
 
-# Groq
-GROQ_API_KEY=gsk_...
+    This command will:
+    *   Start the Python Backend (Port 8000)
+    *   Start the Next.js Frontend (Port 3000)
+    *   Automatically seed demo data 
 
-# Email (for OTP)
-EMAIL_SERVER=smtp://...
-EMAIL_FROM=noreply@skillsync.app
+3.  **Open the App:**
+    *   **Frontend:** [http://localhost:3000](http://localhost:3000)
+    *   **API Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
+
+---
+
+## 📖 Documentation
+
+*   [**Setup Guide**](docs/SETUP.md) - Detailed installation instructions.
+*   [**Demo Script**](docs/DEMO_SCRIPT.md) - Step-by-step walkthrough for presenters.
+*   [**API Documentation**](http://localhost:8000/redoc) - Backend API reference.
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    Client[Next.js Frontend] -->|REST API| API[FastAPI Gateway]
+    API -->|Query| Graph[GraphRAG Engine]
+    Graph -->|Read/Write| DB[(MongoDB / Memory)]
+    Graph -->|Inference| LLM[Groq AI]
 ```
 
-You'll need:
-> MongoDB Atlas account (free tier works)
-> , Groq API key (free, sign up at console.groq.com)
-> , SMTP server for sending verification emails
+---
 
-## Current Status
-This  is a working prototype built for SRM AP. The matching algorithm is solid, but there's room for optimization. Event coordination works, ratings system is functional.
-Known issues:
+## ❤️ Team On-Sight
 
-> GraphRAG responses can be slow with large user bases (working on caching)
-> , Need better error handling on the frontend
-> , Mobile experience could use polish
-
-
-Made by On-Sight for FORTEX36
+Made with caffeine and code for SRM AP students.
