@@ -1,6 +1,6 @@
 'use client'
 
-import { motion, useInView, useSpring, useTransform } from 'framer-motion'
+import { motion, useInView } from 'framer-motion'
 import { useRef, useEffect, useState } from 'react'
 
 interface AnimatedCounterProps {
@@ -28,33 +28,44 @@ export function AnimatedCounter({
 }: AnimatedCounterProps) {
     const ref = useRef<HTMLSpanElement>(null)
     const isInView = useInView(ref, { once, margin: '-50px' })
+    const [displayValue, setDisplayValue] = useState(0)
     const [hasAnimated, setHasAnimated] = useState(false)
-
-    const spring = useSpring(0, {
-        duration: duration * 1000,
-        bounce: 0,
-    })
-
-    const display = useTransform(spring, (current) =>
-        Math.round(current).toLocaleString()
-    )
 
     useEffect(() => {
         if (isInView && !hasAnimated) {
             const timeout = setTimeout(() => {
-                spring.set(value)
                 setHasAnimated(true)
+                const startTime = Date.now()
+                const startValue = 0
+                const endValue = value
+
+                const tick = () => {
+                    const elapsed = Date.now() - startTime
+                    const progress = Math.min(elapsed / (duration * 1000), 1)
+
+                    // Ease out cubic
+                    const eased = 1 - Math.pow(1 - progress, 3)
+                    const current = startValue + (endValue - startValue) * eased
+
+                    setDisplayValue(Math.round(current))
+
+                    if (progress < 1) {
+                        requestAnimationFrame(tick)
+                    }
+                }
+
+                requestAnimationFrame(tick)
             }, delay * 1000)
             return () => clearTimeout(timeout)
         }
-    }, [isInView, value, spring, delay, hasAnimated])
+    }, [isInView, value, duration, delay, hasAnimated])
 
     return (
-        <motion.span ref={ref} className={className}>
+        <span ref={ref} className={className}>
             {prefix}
-            <motion.span>{display}</motion.span>
+            {displayValue.toLocaleString()}
             {suffix}
-        </motion.span>
+        </span>
     )
 }
 
@@ -82,30 +93,39 @@ export function AnimatedPercentage({
 }: AnimatedPercentageProps) {
     const ref = useRef<HTMLDivElement>(null)
     const isInView = useInView(ref, { once, margin: '-50px' })
+    const [displayValue, setDisplayValue] = useState(0)
     const [hasAnimated, setHasAnimated] = useState(false)
-
-    const spring = useSpring(0, {
-        duration: duration * 1000,
-        bounce: 0,
-    })
-
-    const displayValue = useTransform(spring, (current) => Math.round(current))
 
     useEffect(() => {
         if (isInView && !hasAnimated) {
             const timeout = setTimeout(() => {
-                spring.set(value)
                 setHasAnimated(true)
+                const startTime = Date.now()
+
+                const tick = () => {
+                    const elapsed = Date.now() - startTime
+                    const progress = Math.min(elapsed / (duration * 1000), 1)
+                    const eased = 1 - Math.pow(1 - progress, 3)
+                    const current = value * eased
+
+                    setDisplayValue(Math.round(current))
+
+                    if (progress < 1) {
+                        requestAnimationFrame(tick)
+                    }
+                }
+
+                requestAnimationFrame(tick)
             }, delay * 1000)
             return () => clearTimeout(timeout)
         }
-    }, [isInView, value, spring, delay, hasAnimated])
+    }, [isInView, value, duration, delay, hasAnimated])
 
     return (
         <div ref={ref} className={className}>
-            <motion.span className="font-bold">
+            <span className="font-bold">
                 {displayValue}%
-            </motion.span>
+            </span>
             {showBar && (
                 <div className="mt-2 h-1.5 bg-secondary rounded-full overflow-hidden">
                     <motion.div
