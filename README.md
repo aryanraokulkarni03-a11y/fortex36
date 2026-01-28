@@ -1,46 +1,43 @@
 # SkillSync
 
-> AI-Powered Peer Learning Network for SRM AP
+> AI-Powered Peer Learning Network for SRM AP. Built this to solve the problem of finding study partners who actually know what they're doing.
 
-## 🚀 Quick Start
+## What this does: 
+> SkillSync uses GraphRAG (graph-based retrieval augmented generation) to match students based on their actual skills, not just what courses they're taking. You tell it what you know and what you want to learn, and it connects you with people who can help or collaborate.
+Main features:
 
-```bash
-# Frontend
-cd frontend
-npm install
-npm run dev
+Smart matching using knowledge graphs and LLM reasoning
+Skill-based peer discovery (not just "who's in my class")
+Event coordination for study sessions and hackathons
+Peer rating system to keep quality high
 
-# GraphRAG Microservice
-cd graphrag
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
+The core idea: stop randomly DMing people on Discord hoping they know React. Let the AI figure out who can actually help you.
 
-## 📁 Project Structure (3-Layer Architecture)
+## Project Structure 
 
 ```
 skillsync/
-├── directives/          # Layer 1: What to do (SOPs)
-│   ├── skillsync.md     # Master directive
+├── directives/          # Implementation specs
+│   ├── skillsync.md     # Master overview
 │   ├── auth.md          # Authentication flow
-│   ├── matching.md      # Peer matching logic
-│   ├── events.md        # Event discovery
-│   └── ratings.md       # Rating system
+│   ├── matching.md      # GraphRAG matching logic
+│   ├── events.md        # Event system
+│   └── ratings.md       # Rating mechanism
 │
-├── execution/           # Layer 3: Doing the work (Scripts)
-│   ├── auth/            # Auth scripts
-│   ├── graphrag/        # Graph matching scripts
-│   ├── events/          # Event scripts
-│   └── ratings/         # Rating scripts
+├── execution/           # Backend microservices
+│   ├── auth/            # Auth service
+│   ├── graphrag/        # AI matching engine
+│   ├── events/          # Event management
+│   └── ratings/         # Rating system
 │
-├── frontend/            # Next.js app
-├── graphrag/            # Python microservice
-├── .tmp/                # Intermediate files (gitignored)
-├── docs/                # Documentation
-└── .env                 # Environment variables
+├── frontend/            # Next.js application
+├── graphrag/            # Python GraphRAG service
+├── .tmp/                # Temporary files
+├── docs/                # Additional documentation
+└── .env.example         # Environment variables template             
 ```
 
-## 🛠️ Tech Stack
+## Tech Stack - MERN & other requisites
 
 | Layer | Technology |
 |-------|------------|
@@ -50,15 +47,8 @@ skillsync/
 | Auth | NextAuth.js, JWT |
 | Deploy | Vercel, MongoDB Atlas, Railway |
 
-## 📋 Team Plan
 
-See [SKILLSYNC_TEAM_PLAN.md](../SKILLSYNC_TEAM_PLAN.md) for:
-- Team roles & responsibilities
-- 36-hour sprint timeline
-- Feature checklist
-- Demo script
-
-## 🔑 Environment Variables
+## Environment Variables
 
 Create `.env` file:
 
@@ -78,18 +68,18 @@ EMAIL_SERVER=smtp://...
 EMAIL_FROM=noreply@skillsync.app
 ```
 
-## 📚 Directives
+You'll need:
+> MongoDB Atlas account (free tier works)
+> Groq API key (free, sign up at console.groq.com)
+> SMTP server for sending verification emails
 
-Read the directives before implementing:
+## Current Status
+This  is a working prototype built for SRM AP. The matching algorithm is solid, but there's room for optimization. Event coordination works, ratings system is functional.
+Known issues:
 
-1. `directives/skillsync.md` - Master overview
-2. `directives/auth.md` - Authentication system
-3. `directives/matching.md` - GraphRAG matching
+> GraphRAG responses can be slow with large user bases (working on caching)
+> Need better error handling on the frontend
+> Mobile experience could use polish
 
-## 🎯 The Pitch
 
-> "At SRM AP, 10,000 students have skills to share but no way to find each other. srmapi.in shows YOUR data - SkillSync shows WHO can help you."
-
----
-
-Made with 💙 for SRM AP Hackathon 2026
+Made by On-Sight for FORTEX36
