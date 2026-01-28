@@ -1,224 +1,85 @@
-# SkillSync - Quick Start Guide
+# SkillSync
 
-> Get SkillSync running locally or deploy to production in minutes
+> AI-Powered Peer Learning Network for SRM AP. Built this to solve the problem of finding study partners who actually know what they're doing.
 
----
+## What this does: 
+> SkillSync uses GraphRAG (graph-based retrieval augmented generation) to match students based on their actual skills, not just what courses they're taking. You tell it what you know and what you want to learn, and it connects you with people who can help or collaborate.
+Main features:
 
-## 🚀 Local Development
+Smart matching using knowledge graphs and LLM reasoning
+Skill-based peer discovery (not just "who's in my class")
+Event coordination for study sessions and hackathons
+Peer rating system to keep quality high
 
-### Prerequisites
-- Node.js 20+ and npm
-- Python 3.11+
-- Git
+The core idea: stop randomly DMing people on Discord hoping they know React. Let the AI figure out who can actually help you.
 
-### Quick Start (2 commands)
-
-```bash
-# Terminal 1: Start Backend
-cd graphrag
-python -m uvicorn main:app --reload
-
-# Terminal 2: Start Frontend (in new terminal)
-cd frontend
-npm run dev
-```
-
-**URLs:**
-- Frontend: http://localhost:3000
-- Backend: http://localhost:8000
-- API Docs: http://localhost:8000/docs
-
-### First Time Setup
-
-```bash
-# Clone repository
-git clone https://github.com/your-username/skillsync.git
-cd skillsync
-
-# Install frontend dependencies
-cd frontend
-npm install
-
-# Install backend dependencies
-cd ../graphrag
-pip install -r requirements.txt
-
-# Seed demo data (optional)
-# Start backend first, then:
-curl -X POST http://localhost:8000/demo/seed
-```
-
----
-
-## ☁️ Deploy to Production
-
-### Option 1: Automated Script (Easiest)
-
-```powershell
-# Run deployment wizard
-.\deploy.ps1
-```
-
-Select option:
-1. Deploy Backend only
-2. Deploy Frontend only  
-3. Deploy Full Stack
-
-### Option 2: Manual Deployment
-
-See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for detailed step-by-step instructions.
-
-**Quick Links:**
-- [Deploy to Vercel](https://vercel.com/new) (Frontend)
-- [Deploy to Railway](https://railway.app/new) (Backend)
-- [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register) (Database)
-
----
-
-## 📁 Project Structure
+## Project Structure 
 
 ```
 skillsync/
-├── frontend/          # Next.js app
-│   ├── src/app/       # Pages & API routes
-│   ├── src/components/# React components
-│   └── package.json
+├── directives/          # Implementation specs
+│   ├── skillsync.md     # Master overview
+│   ├── auth.md          # Authentication flow
+│   ├── matching.md      # GraphRAG matching logic
+│   ├── events.md        # Event system
+│   └── ratings.md       # Rating mechanism
 │
-├── graphrag/          # FastAPI backend
-│   ├── main.py        # API server
-│   ├── services/      # Business logic
-│   └── requirements.txt
+├── execution/           # Backend microservices
+│   ├── auth/            # Auth service
+│   ├── graphrag/        # AI matching engine
+│   ├── events/          # Event management
+│   └── ratings/         # Rating system
 │
-├── DEPLOYMENT.md      # Detailed deploy guide
-├── PROJECT_REPORT.md  # Comprehensive docs
-└── deploy.ps1         # Automated deploy
+├── frontend/            # Next.js application
+├── graphrag/            # Python GraphRAG service
+├── .tmp/                # Temporary files
+├── docs/                # Additional documentation
+└── .env.example         # Environment variables template             
 ```
 
----
+## Tech Stack - MERN & other requisites
 
-## 🎯 Key Features
+| Layer | Technology |
+|-------|------------|
+| Frontend | Next.js 14, TypeScript, Tailwind, shadcn/ui |
+| Backend | Node.js, Express.js, MongoDB |
+| AI | Groq (Llama 3.3), NetworkX, LangChain.js |
+| Auth | NextAuth.js, JWT |
+| Deploy | Vercel, MongoDB Atlas, Railway |
 
-- **AI-Powered Matching**: GraphRAG + Llama 3.3 for peer discovery
-- **Social Network Analysis**: 1st/2nd/3rd degree connections
-- **SRM Email Only**: Campus-verified students
-- **Real-time Updates**: Live skill graph
-- **Trust System**: Peer ratings & reviews
 
----
+## Environment Variables
 
-## 🧪 Testing
-
-```bash
-# Backend tests
-cd graphrag
-python -m pytest tests/ -v
-
-# Integration tests (requires running servers)
-python tests/test_e2e_integration.py
-```
-
-**Test Coverage:** 85% (15 tests passing)
-
----
-
-## 🔧 Environment Variables
-
-### Frontend (.env.local)
+Create `.env` file:
 
 ```env
-NEXT_PUBLIC_GRAPHRAG_URL=http://localhost:8000
+# MongoDB
+MONGODB_URI=mongodb+srv://...
+
+# NextAuth
+NEXTAUTH_SECRET=your-secret
 NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-secret-here
-MONGODB_URI=mongodb+srv://...
-```
 
-### Backend (graphrag/.env)
-
-```env
-MONGODB_URI=mongodb+srv://...
-CORS_ORIGINS=http://localhost:3000
+# Groq
 GROQ_API_KEY=gsk_...
+
+# Email (for OTP)
+EMAIL_SERVER=smtp://...
+EMAIL_FROM=noreply@skillsync.app
 ```
 
----
+You'll need:
+> MongoDB Atlas account (free tier works)
+> , Groq API key (free, sign up at console.groq.com)
+> , SMTP server for sending verification emails
 
-## 📚 Documentation
+## Current Status
+This  is a working prototype built for SRM AP. The matching algorithm is solid, but there's room for optimization. Event coordination works, ratings system is functional.
+Known issues:
 
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deploy to production
-- **[PROJECT_REPORT.md](./PROJECT_REPORT.md)** - Full project details
-- **[README.md](./README.md)** - This file
+> GraphRAG responses can be slow with large user bases (working on caching)
+> , Need better error handling on the frontend
+> , Mobile experience could use polish
 
----
 
-## 🆘 Common Issues
-
-### Port Already in Use
-```bash
-# Kill process on port 3000/8000
-npx kill-port 3000
-npx kill-port 8000
-```
-
-### Frontend Won't Start
-```bash
-cd frontend
-rm -rf .next node_modules
-npm install
-npm run dev
-```
-
-### Backend 500 Errors
-```bash
-# Check MongoDB connection
-# Verify MONGODB_URI in .env
-# Use demo mode: Don't set MONGODB_URI
-```
-
----
-
-## 🎓 Built For
-
-**SRM AP Students** - 10,000+ potential users
-
-**Use Cases:**
-- Find peer mentors for any skill
-- Form hackathon teams
-- Discover campus events
-- Build study groups
-- Share knowledge
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/XYZ`
-3. Commit changes: `git commit -m 'Add XYZ'`
-4. Push branch: `git push origin feature/XYZ`
-5. Submit Pull Request
-
----
-
-## 📄 License
-
-MIT License - See LICENSE file
-
----
-
-## 👥 Team
-
-Built with 💙 for SRM AP Hackathon 2026
-
-**Contact:** [Your Email]
-
----
-
-## 🔗 Links
-
-- **Live Demo:** https://skillsync.vercel.app (after deployment)
-- **API Docs:** https://skillsync-api.railway.app/docs
-- **GitHub:** https://github.com/your-username/skillsync
-
----
-
-**⭐ Star this repo if you found it helpful!**
+Made by On-Sight for FORTEX36
