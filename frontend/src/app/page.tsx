@@ -21,6 +21,9 @@ import {
     Check,
     ChevronRight,
 } from 'lucide-react'
+import { SpotlightText } from '@/components/ui/spotlight-text'
+import Lenis from 'lenis'
+import { useEffect } from 'react'
 
 // Stats data
 const stats = [
@@ -69,6 +72,17 @@ export default function LandingPage() {
     const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0])
     const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.8])
     const heroY = useTransform(scrollYProgress, [0, 1], [0, 100])
+
+    useEffect(() => {
+        const lenis = new Lenis()
+
+        function raf(time: number) {
+            lenis.raf(time)
+            requestAnimationFrame(raf)
+        }
+
+        requestAnimationFrame(raf)
+    }, [])
 
     return (
         <div className="min-h-screen bg-background grain">
@@ -167,25 +181,30 @@ export default function LandingPage() {
                         </div>
                     </motion.div>
 
-                    {/* MASSIVE HEADLINE */}
-                    <h1 className="relative font-bold tracking-tighter leading-[0.9] mb-8 text-foreground">
-                        <motion.span
+                    {/* MASSIVE HEADLINE WITH SPOTLIGHT EFFECT */}
+                    <div className="mb-8 relative z-20">
+                        <motion.div
                             initial={{ opacity: 0, y: 60 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                            className="block text-[4rem] sm:text-[6rem] md:text-[7rem] lg:text-[8.5rem]"
                         >
-                            Learn from
-                        </motion.span>
-                        <motion.span
+                            <SpotlightText
+                                text="Learn from"
+                                className="text-[4rem] sm:text-[6rem] md:text-[7rem] lg:text-[8.5rem] font-bold tracking-tighter leading-[0.9] text-foreground"
+                            />
+                        </motion.div>
+                        <motion.div
                             initial={{ opacity: 0, y: 60 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                            className="block text-gradient-hero text-[4.5rem] sm:text-[6.5rem] md:text-[7.5rem] lg:text-[9rem]"
                         >
-                            Your Peers
-                        </motion.span>
-                    </h1>
+                            <SpotlightText
+                                text="Your Peers"
+                                className="text-[4.5rem] sm:text-[6.5rem] md:text-[7.5rem] lg:text-[9rem] font-bold tracking-tighter leading-[0.9] text-gradient-hero"
+                                spotlightColor="rgba(0, 138, 255, 0.5)"
+                            />
+                        </motion.div>
+                    </div>
 
                     {/* Subtitle */}
                     <motion.p
@@ -199,7 +218,7 @@ export default function LandingPage() {
                         <span className="text-foreground font-medium">Find mentors. Share knowledge. Grow together.</span>
                     </motion.p>
 
-                    {/* CTA Buttons - Chunky & Premium */}
+                    {/* CTA Buttons - UNIFIED */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -209,19 +228,10 @@ export default function LandingPage() {
                         <Link href="/signup" className="w-full sm:w-auto">
                             <Button
                                 size="lg"
-                                className="w-full sm:w-auto text-lg h-14 px-8 rounded-full glow-primary pulse-glow font-semibold tracking-wide"
+                                className="w-full sm:w-auto text-lg h-16 px-12 rounded-full glow-primary pulse-glow font-bold tracking-wide shadow-2xl shadow-primary/20 hover:scale-105 transition-transform duration-300"
                             >
-                                Get Started Free
-                                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                            </Button>
-                        </Link>
-                        <Link href="/matches" className="w-full sm:w-auto">
-                            <Button
-                                variant="outline"
-                                size="lg"
-                                className="w-full sm:w-auto text-lg h-14 px-8 rounded-full border-white/10 hover:bg-white/5 hover-lift backdrop-blur-sm"
-                            >
-                                Explore Mentors
+                                Get Started
+                                <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform" />
                             </Button>
                         </Link>
                     </motion.div>
@@ -432,19 +442,10 @@ export default function LandingPage() {
                             <Link href="/signup">
                                 <Button
                                     size="lg"
-                                    className="text-lg px-10 py-6 glow-primary-intense"
+                                    className="text-lg px-12 py-8 rounded-full glow-primary-intense font-bold tracking-wide text-xl hover:scale-105 transition-transform"
                                 >
-                                    Create Free Account
-                                    <ArrowRight className="w-5 h-5 ml-2" />
-                                </Button>
-                            </Link>
-                            <Link href="/login">
-                                <Button
-                                    variant="ghost"
-                                    size="lg"
-                                    className="text-lg px-8 py-6"
-                                >
-                                    Sign In
+                                    Join the Network
+                                    <ArrowRight className="w-6 h-6 ml-3" />
                                 </Button>
                             </Link>
                         </div>

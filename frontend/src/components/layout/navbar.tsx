@@ -14,6 +14,9 @@ const navLinks = [
     { name: 'Events', href: '/events' },
 ]
 
+// Links visible on the landing page (kept minimal as requested)
+const landingLinks: { name: string; href: string }[] = []
+
 export function Navbar() {
     const pathname = usePathname()
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -32,8 +35,8 @@ export function Navbar() {
     return (
         <motion.header
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                    ? 'glass-strong shadow-lg'
-                    : 'bg-transparent'
+                ? 'glass-strong shadow-lg'
+                : 'bg-transparent'
                 }`}
             initial={{ y: -100 }}
             animate={{ y: 0 }}
@@ -65,15 +68,15 @@ export function Navbar() {
 
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center gap-1">
-                        {navLinks.map((link) => {
+                        {(pathname === '/' ? landingLinks : navLinks).map((link) => {
                             const isActive = pathname === link.href
 
                             return (
                                 <Link key={link.href} href={link.href}>
                                     <motion.div
                                         className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
-                                                ? 'text-primary'
-                                                : 'text-muted-foreground hover:text-foreground'
+                                            ? 'text-primary'
+                                            : 'text-muted-foreground hover:text-foreground'
                                             }`}
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
@@ -164,8 +167,8 @@ export function Navbar() {
                                         <Link
                                             href={link.href}
                                             className={`block px-4 py-3 rounded-xl text-sm font-medium transition-all ${isActive
-                                                    ? 'bg-primary/10 text-primary'
-                                                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                                                ? 'bg-primary/10 text-primary'
+                                                : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
                                                 }`}
                                         >
                                             {link.name}
