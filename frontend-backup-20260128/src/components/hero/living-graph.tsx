@@ -23,9 +23,9 @@ export function LivingGraph() {
             <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80 z-10" />
 
             <div className="h-screen w-full scale-110">
-                {/* <Suspense fallback={null}> */}
-                {/* <ForceGraph /> */}
-                {/* </Suspense> */}
+                <Suspense fallback={null}>
+                    <ForceGraph />
+                </Suspense>
             </div>
         </div>
     );

@@ -1,0 +1,139 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* =========================================
+   THEME: HOLOGRAPHIC GLASS (ACID VISIONS)
+   Geometric: Sharp (0px-2px)
+   Palette: Deep Void + Acid Green
+   ========================================= */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-space), "Inter", sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+
+  /* Semantic Colors */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Radius: Sharp/Technical */
+  --radius-sm: 0rem;
+  --radius-md: 0.125rem;  /* 2px */
+  --radius-lg: 0.25rem;   /* 4px */
+  --radius-xl: 0.5rem;    /* 8px */
+
+  /* Animations */
+  --animate-aurora: aurora 20s linear infinite;
+  --animate-scanline: scanline 8s linear infinite;
+  --animate-pulse-glow: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  
+  @keyframes aurora {
+    0% { background-position: 50% 50%, 50% 50%; }
+    100% { background-position: 350% 50%, 350% 50%; }
+  }
+
+  @keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+  
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--primary); }
+    50% { opacity: 0.5; box-shadow: 0 0 20px var(--primary); }
+  }
+}
+
+:root {
+  /* SHARP RADIUS */
+  --radius: 0.125rem; /* 2px */
+
+  /* LIGHT MODE (Not optimized, focus is dark) */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.1 0 0); 
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.1 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.1 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+}
+
+.dark {
+  /* DEEP VOID PALETTE */
+  --background: oklch(0.05 0 0); /* Almost black #0A0A0A */
+  --foreground: oklch(0.985 0 0); /* Pure white */
+  
+  /* ACID GREEN PRIMARY */
+  --primary: oklch(0.85 0.25 140); /* Neon Acid Green */
+  --primary-foreground: oklch(0.05 0 0); /* Black text on green */
+  
+  /* HOLOGRAPHIC GLASS SURFACES */
+  --card: oklch(0.12 0.02 140 / 0.4); /* Slight green tint glass */
+  --card-foreground: oklch(0.985 0 0);
+  
+  --popover: oklch(0.1 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  
+  /* SECONDARY: Electric Cyan */
+  --secondary: oklch(0.25 0.1 240);
+  --secondary-foreground: oklch(0.985 0 0);
+  
+  --muted: oklch(0.15 0 0);
+  --muted-foreground: oklch(0.65 0 0);
+  
+  --accent: oklch(0.85 0.25 140 / 0.1);
+  --accent-foreground: oklch(0.85 0.25 140);
+  
+  --destructive: oklch(0.6 0.25 25); /* Bright Red */
+  --destructive-foreground: oklch(0.985 0 0);
+  
+  /* SHARP BORDERS */
+  --border: oklch(1 0 0 / 0.1); /* White 10% */
+  --input: oklch(1 0 0 / 0.15);
+  --ring: oklch(0.85 0.25 140); /* Acid Green Ring */
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* UTILITIES FOR GLASS */
+.glass-panel {
+  @apply bg-card backdrop-blur-md border border-border;
+}
+
+.text-glow {
+  text-shadow: 0 0 20px var(--primary);
+}

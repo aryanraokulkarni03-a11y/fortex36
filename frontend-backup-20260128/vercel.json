@@ -1,0 +1,32 @@
+{
+    "buildCommand": "npm run build",
+    "devCommand": "npm run dev",
+    "installCommand": "npm install",
+    "framework": "nextjs",
+    "outputDirectory": ".next",
+    "regions": [
+        "sin1"
+    ],
+    "env": {
+        "NEXT_PUBLIC_GRAPHRAG_URL": {
+            "description": "GraphRAG Backend API URL from Railway",
+            "value": "https://your-app.railway.app"
+        },
+        "NEXTAUTH_URL": {
+            "description": "Your Vercel deployment URL",
+            "value": "https://your-app.vercel.app"
+        },
+        "NEXTAUTH_SECRET": {
+            "description": "Generate with: openssl rand -base64 32",
+            "value": ""
+        },
+        "MONGODB_URI": {
+            "description": "MongoDB Atlas connection string",
+            "value": ""
+        },
+        "GROQ_API_KEY": {
+            "description": "Groq API key for LLM",
+            "value": ""
+        }
+    }
+}

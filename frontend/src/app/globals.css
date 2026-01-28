@@ -1,139 +1,248 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
-/* =========================================
-   THEME: HOLOGRAPHIC GLASS (ACID VISIONS)
-   Geometric: Sharp (0px-2px)
-   Palette: Deep Void + Acid Green
-   ========================================= */
+@theme {
+    /* Colors - keeping existing variables but defining them for v4 */
+    --color-border: hsl(220, 12%, 20%);
+    --color-input: hsl(220, 12%, 20%);
+    --color-ring: hsl(210, 100%, 55%);
+    --color-background: hsl(220, 16%, 10%);
+    --color-foreground: hsl(0, 0%, 98%);
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-space), "Inter", sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
+    --color-primary: hsl(210, 100%, 55%);
+    --color-primary-foreground: hsl(0, 0%, 100%);
 
-  /* Semantic Colors */
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
+    --color-secondary: hsl(220, 14%, 12%);
+    --color-secondary-foreground: hsl(0, 0%, 98%);
 
-  /* Radius: Sharp/Technical */
-  --radius-sm: 0rem;
-  --radius-md: 0.125rem;  /* 2px */
-  --radius-lg: 0.25rem;   /* 4px */
-  --radius-xl: 0.5rem;    /* 8px */
+    --color-destructive: hsl(348, 86%, 61%);
+    --color-destructive-foreground: hsl(0, 0%, 98%);
 
-  /* Animations */
-  --animate-aurora: aurora 20s linear infinite;
-  --animate-scanline: scanline 8s linear infinite;
-  --animate-pulse-glow: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  
-  @keyframes aurora {
-    0% { background-position: 50% 50%, 50% 50%; }
-    100% { background-position: 350% 50%, 350% 50%; }
-  }
+    --color-muted: hsl(220, 12%, 20%);
+    --color-muted-foreground: hsl(220, 10%, 65%);
 
-  @keyframes scanline {
-    0% { transform: translateY(-100%); }
-    100% { transform: translateY(100%); }
-  }
-  
-  @keyframes pulse-glow {
-    0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--primary); }
-    50% { opacity: 0.5; box-shadow: 0 0 20px var(--primary); }
-  }
+    --color-accent: hsl(220, 12%, 20%);
+    --color-accent-foreground: hsl(0, 0%, 98%);
+
+    --color-popover: hsl(220, 16%, 10%);
+    --color-popover-foreground: hsl(0, 0%, 98%);
+
+    --color-card: hsl(220, 16%, 10%);
+    --color-card-foreground: hsl(0, 0%, 98%);
+
+    /* Custom Colors */
+    --color-success: hsl(142, 76%, 55%);
+    --color-success-foreground: hsl(0, 0%, 10%);
+    --color-warning: hsl(45, 100%, 60%);
+    --color-warning-foreground: hsl(0, 0%, 10%);
+    --color-danger: hsl(348, 86%, 61%);
+    --color-danger-foreground: hsl(0, 0%, 98%);
+
+    --radius-lg: 0.5rem;
+    --radius-md: calc(0.5rem - 2px);
+    --radius-sm: calc(0.5rem - 4px);
+
+    --animate-accordion-down: accordion-down 0.2s ease-out;
+    --animate-accordion-up: accordion-up 0.2s ease-out;
+    --animate-fade-in: fade-in 0.3s ease-in-out;
+    --animate-fade-out: fade-out 0.3s ease-in-out;
+    --animate-scale-in: scale-in 0.2s ease-out;
+    --animate-scale-out: scale-out 0.2s ease-in;
+    --animate-slide-in-from-top: slide-in-from-top 0.3s ease-out;
+    --animate-slide-in-from-bottom: slide-in-from-bottom 0.3s ease-out;
+    --animate-glow-pulse: glow-pulse 2s infinite;
+
+    @keyframes accordion-down {
+        from {
+            height: 0;
+        }
+
+        to {
+            height: var(--radix-accordion-content-height);
+        }
+    }
+
+    @keyframes accordion-up {
+        from {
+            height: var(--radix-accordion-content-height);
+        }
+
+        to {
+            height: 0;
+        }
+    }
+
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes fade-out {
+        from {
+            opacity: 1;
+        }
+
+        to {
+            opacity: 0;
+        }
+    }
+
+    @keyframes scale-in {
+        from {
+            transform: scale(0.95);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @keyframes scale-out {
+        from {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        to {
+            transform: scale(0.95);
+            opacity: 0;
+        }
+    }
+
+    @keyframes slide-in-from-top {
+        from {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slide-in-from-bottom {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes glow-pulse {
+        0% {
+            box-shadow: 0 0 5px rgba(0, 138, 255, 0.2);
+        }
+
+        50% {
+            box-shadow: 0 0 20px rgba(0, 138, 255, 0.6);
+        }
+
+        100% {
+            box-shadow: 0 0 5px rgba(0, 138, 255, 0.2);
+        }
+    }
 }
 
-:root {
-  /* SHARP RADIUS */
-  --radius: 0.125rem; /* 2px */
-
-  /* LIGHT MODE (Not optimized, focus is dark) */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.1 0 0); 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.1 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.1 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-}
-
-.dark {
-  /* DEEP VOID PALETTE */
-  --background: oklch(0.05 0 0); /* Almost black #0A0A0A */
-  --foreground: oklch(0.985 0 0); /* Pure white */
-  
-  /* ACID GREEN PRIMARY */
-  --primary: oklch(0.85 0.25 140); /* Neon Acid Green */
-  --primary-foreground: oklch(0.05 0 0); /* Black text on green */
-  
-  /* HOLOGRAPHIC GLASS SURFACES */
-  --card: oklch(0.12 0.02 140 / 0.4); /* Slight green tint glass */
-  --card-foreground: oklch(0.985 0 0);
-  
-  --popover: oklch(0.1 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  
-  /* SECONDARY: Electric Cyan */
-  --secondary: oklch(0.25 0.1 240);
-  --secondary-foreground: oklch(0.985 0 0);
-  
-  --muted: oklch(0.15 0 0);
-  --muted-foreground: oklch(0.65 0 0);
-  
-  --accent: oklch(0.85 0.25 140 / 0.1);
-  --accent-foreground: oklch(0.85 0.25 140);
-  
-  --destructive: oklch(0.6 0.25 25); /* Bright Red */
-  --destructive-foreground: oklch(0.985 0 0);
-  
-  /* SHARP BORDERS */
-  --border: oklch(1 0 0 / 0.1); /* White 10% */
-  --input: oklch(1 0 0 / 0.15);
-  --ring: oklch(0.85 0.25 140); /* Acid Green Ring */
-}
-
+/* Base styles */
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+    /* Import Inter font from Google Fonts */
+    /* Replaced @import with specific font-face or link in HTML usually, but keep for now if it works or remove */
+    /* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); */
+
+    :root {
+        --background: hsl(220, 16%, 10%);
+        --foreground: hsl(0, 0%, 98%);
+        --card: hsl(220, 16%, 10%);
+        --card-foreground: hsl(0, 0%, 98%);
+        --popover: hsl(220, 16%, 10%);
+        --popover-foreground: hsl(0, 0%, 98%);
+        --primary: hsl(210, 100%, 55%);
+        --primary-foreground: hsl(0, 0%, 100%);
+        --secondary: hsl(220, 14%, 12%);
+        --secondary-foreground: hsl(0, 0%, 98%);
+        --muted: hsl(220, 12%, 20%);
+        --muted-foreground: hsl(220, 10%, 65%);
+        --accent: hsl(220, 12%, 20%);
+        --accent-foreground: hsl(0, 0%, 98%);
+        --destructive: hsl(348, 86%, 61%);
+        --destructive-foreground: hsl(0, 0%, 98%);
+        --border: hsl(220, 12%, 20%);
+        --input: hsl(220, 12%, 20%);
+        --ring: hsl(210, 100%, 55%);
+        --radius: 0.5rem;
+
+        --success: hsl(142, 76%, 55%);
+        --warning: hsl(45, 100%, 60%);
+        --danger: hsl(348, 86%, 61%);
+    }
+
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground font-sans;
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
 }
 
-/* UTILITIES FOR GLASS */
-.glass-panel {
-  @apply bg-card backdrop-blur-md border border-border;
-}
+@layer utilities {
+    .text-gradient {
+        @apply bg-clip-text text-transparent;
+        background-image: linear-gradient(to right,
+                hsl(210, 100%, 55%),
+                hsl(142, 76%, 55%));
+    }
 
-.text-glow {
-  text-shadow: 0 0 20px var(--primary);
+    .text-gradient-warm {
+        @apply bg-clip-text text-transparent;
+        background-image: linear-gradient(to right,
+                hsl(45, 100%, 60%),
+                hsl(348, 86%, 61%));
+    }
+
+    .glow-primary {
+        box-shadow: 0 0 20px rgba(0, 138, 255, 0.3);
+    }
+
+    .glow-success {
+        box-shadow: 0 0 20px rgba(61, 214, 140, 0.3);
+    }
+
+    .glass {
+        background: rgba(28, 30, 38, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .elevated {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .elevated-lg {
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .focus-ring {
+        @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background;
+    }
+
+    .transition-smooth {
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .transition-spring {
+        transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
 }
