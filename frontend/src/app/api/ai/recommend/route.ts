@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import Groq from "groq-sdk";
 
-const groq = new Groq({
-    apiKey: process.env.GROQ_API_KEY,
-});
+// Groq initialized lazily inside handler
 
 // POST /api/ai/recommend - Get AI-powered recommendations
 export async function POST(request: Request) {
@@ -92,6 +90,10 @@ Respond in JSON format:
                     { status: 400 }
                 );
         }
+
+        const groq = new Groq({
+            apiKey: process.env.GROQ_API_KEY || "dummy_key_for_build",
+        });
 
         const completion = await groq.chat.completions.create({
             messages: [

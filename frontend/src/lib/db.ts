@@ -210,27 +210,35 @@ export const Report: Model<IReport> =
     mongoose.models.Report || mongoose.model<IReport>("Report", ReportSchema);
 
 // ============== DB CONNECTION ==============
-const MONGODB_URI = process.env.MONGODB_URI!;
+const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI) {
-    throw new Error("Please define the MONGODB_URI environment variable");
+// Avoid 'any' type for global
+declare global {
+    // eslint-disable-next-line no-var
+    var mongoose: { conn: any; promise: any } | undefined;
 }
 
-let cached = (global as any).mongoose;
+let cached = global.mongoose;
 
 if (!cached) {
-    cached = (global as any).mongoose = { conn: null, promise: null };
+    cached = global.mongoose = { conn: null, promise: null };
 }
 
 export async function connectDB() {
-    if (cached.conn) {
-        return cached.conn;
+    const mongoUri = MONGODB_URI;
+
+    if (cached!.conn) {
+        return cached!.conn;
     }
 
-    if (!cached.promise) {
-        cached.promise = mongoose.connect(MONGODB_URI).then((mongoose) => mongoose);
+    if (!mongoUri) {
+        throw new Error("Please define the MONGODB_URI environment variable");
     }
 
-    cached.conn = await cached.promise;
-    return cached.conn;
+    if (!cached!.promise) {
+        cached!.promise = mongoose.connect(mongoUri).then((mongoose) => mongoose);
+    }
+
+    cached!.conn = await cached!.promise;
+    return cached!.conn;
 }

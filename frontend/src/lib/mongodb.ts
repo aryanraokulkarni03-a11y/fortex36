@@ -1,14 +1,17 @@
 import { MongoClient } from "mongodb";
 
-if (!process.env.MONGODB_URI) {
-    throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
-}
-
-const uri = process.env.MONGODB_URI;
+// Use a fallback URI for build time if not provided, to prevent crash locally
+// (The app will fail to connect at runtime, but build will pass)
+const uri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/fallback_build_db";
 const options = {};
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
+
+if (!process.env.MONGODB_URI && process.env.NODE_ENV === "production" && process.env.NEXT_PHASE !== "phase-production-build") {
+    // Warning only
+    console.warn("WARN: MONGODB_URI not defined. Authentication will fail.");
+}
 
 if (process.env.NODE_ENV === "development") {
     // In development mode, use a global variable so that the value
