@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Suspense } from "react";
 import {
     Sparkles,
     Users,
@@ -44,7 +45,7 @@ const getLevelFromPercentage = (percentage: number): string => {
     return "Expert";
 };
 
-export default function UserProfilePage({ params: _params }: { params: { id: string } }) {
+function UserProfilePageContent({ params: _params }: { params: { id: string } }) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { currentUserName } = useData();
@@ -300,5 +301,13 @@ export default function UserProfilePage({ params: _params }: { params: { id: str
                 </div>
             </main>
         </div>
+    );
+}
+
+export default function UserProfilePage(props: { params: { id: string } }) {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center text-white">Loading profile...</div>}>
+            <UserProfilePageContent {...props} />
+        </Suspense>
     );
 }

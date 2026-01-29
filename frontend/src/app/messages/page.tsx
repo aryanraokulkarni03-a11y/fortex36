@@ -19,7 +19,7 @@ import {
     Copy
 } from "lucide-react";
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import DefaultAvatar from "@/components/DefaultAvatar";
 import ClickableAvatar from "@/components/ClickableAvatar";
@@ -96,7 +96,7 @@ const initialMessagesByConversation: { [key: number]: Message[] } = {
     ]
 };
 
-export default function MessagesPage() {
+function MessagesPageContent() {
     const searchParams = useSearchParams();
     const [searchQuery, setSearchQuery] = useState("");
     const [conversations, setConversations] = useState(initialConversations);
@@ -518,5 +518,13 @@ export default function MessagesPage() {
                 <div className="fixed inset-0 z-[50]" onClick={closeMenu} />
             )}
         </div>
+    );
+}
+
+export default function MessagesPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center text-white">Loading messages...</div>}>
+            <MessagesPageContent />
+        </Suspense>
     );
 }

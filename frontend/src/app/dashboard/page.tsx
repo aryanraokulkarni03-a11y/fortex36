@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Suspense, useState } from "react";
 import {
   Search,
   Bell,
@@ -19,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import DefaultAvatar from "@/components/DefaultAvatar";
 import ClickableAvatar from "@/components/ClickableAvatar";
 import { useData } from "@/components/DataProvider";
@@ -144,7 +145,8 @@ const activityFeed = [
   { user: "Arjun", action: "joined ML Study Group", time: "1 hour ago" }
 ];
 
-export default function DashboardPage() {
+function DashboardContent() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const { backendConnected, events, currentUserId } = useData();
 
@@ -170,6 +172,24 @@ export default function DashboardPage() {
     rating: MOCK_PROFILE.rating // Not in API yet
   } : MOCK_PROFILE;
 
+  // Use real matches if available, otherwise fallback
+  const matches = backendConnected && matchesData && matchesData.length > 0
+    ? matchesData.map(m => ({
+      id: m.user_id,
+      name: m.name,
+      avatar: m.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase(),
+      department: m.branch || "Unknown",
+      year: `${m.year}${m.year === 1 ? 'st' : m.year === 2 ? 'nd' : m.year === 3 ? 'rd' : 'th'} Year`,
+      matchScore: Math.round(m.match_score * 100),
+      skillsHave: ["Python", "Machine Learning"], // Backend match doesn't return skills list yet, fallback
+      skillsWant: ["React", "Web Dev"], // Backend match doesn't return skills list yet, fallback
+      connectionDegree: m.connection_degree,
+      mutualConnection: m.connection_path.length > 2 ? m.connection_path[1] : null,
+      rating: 5.0, // Mock
+      sessions: 0 // Mock
+    }))
+    : MOCK_MATCHES;
+
   const displayEvents = backendConnected && events.length > 0 ? events.map(e => ({
     id: e.id,
     title: e.title,
@@ -178,20 +198,8 @@ export default function DashboardPage() {
     tags: e.tags
   })) : MOCK_EVENTS;
 
-  const displayMatches = backendConnected && matchesData && matchesData.length > 0 ? matchesData.map(m => ({
-    id: m.user_id,
-    name: m.name,
-    avatar: m.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase(),
-    department: m.branch,
-    year: `${m.year}${m.year === 1 ? 'st' : m.year === 2 ? 'nd' : m.year === 3 ? 'rd' : 'th'} Year`,
-    matchScore: m.match_score,
-    skillsHave: ["Python", "Machine Learning"], // Backend match doesn't return skills list yet, fallback
-    skillsWant: ["React", "Web Dev"], // Backend match doesn't return skills list yet, fallback
-    connectionDegree: m.connection_degree,
-    mutualConnection: m.connection_path.length > 2 ? m.connection_path[1] : null,
-    rating: 4.8, // Fallback
-    sessions: 12 // Fallback
-  })) : MOCK_MATCHES;
+  // Note: 'matches' is already computed above as correct fallback or real data
+  const displayMatches = matches;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -477,3 +485,10 @@ export default function DashboardPage() {
   );
 }
 
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center text-white">Loading SkillSync...</div>}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
