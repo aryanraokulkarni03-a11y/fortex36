@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import DefaultAvatar from "@/components/DefaultAvatar";
 import {
     Radar,
@@ -30,8 +30,12 @@ import {
     PolarAngleAxis,
     ResponsiveContainer,
 } from "recharts";
+import { useData } from "@/components/DataProvider";
+import { useCurrentUser } from "@/lib/hooks";
+import BackendStatus from "@/components/BackendStatus";
 
-const userProfile = {
+// Mock data for fallback
+const MOCK_USER_PROFILE = {
     name: "Kushaan Parekh",
     email: "kushaan_parekh@srmap.edu.in",
     avatar: "KP",
@@ -119,6 +123,55 @@ export default function ProfilePage() {
     const [showAddWantModal, setShowAddWantModal] = useState(false);
     const [newSkillName, setNewSkillName] = useState("");
     const [newSkillLevel, setNewSkillLevel] = useState("Intermediate");
+
+    // Backend data hooks
+    const { backendConnected, sessions, currentUserName } = useData();
+    const { data: userData } = useCurrentUser();
+
+    // Build user profile from backend data with fallback
+    const userProfile = useMemo(() => {
+        if (backendConnected && userData) {
+            const yearNum = userData.year || 2;
+            const yearStr = `${yearNum}${yearNum === 1 ? 'st' : yearNum === 2 ? 'nd' : yearNum === 3 ? 'rd' : 'th'} Year`;
+            return {
+                name: userData.name || MOCK_USER_PROFILE.name,
+                email: userData.email || MOCK_USER_PROFILE.email,
+                avatar: (userData.name || '').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'KP',
+                department: userData.branch || MOCK_USER_PROFILE.department,
+                year: yearStr,
+                bio: userData.bio || MOCK_USER_PROFILE.bio,
+                joinDate: MOCK_USER_PROFILE.joinDate, // Not in API
+                stats: {
+                    rating: 4.8, // Would need separate API
+                    sessions: sessions.length || MOCK_USER_PROFILE.stats.sessions,
+                    connections: 23, // Would need separate API
+                    badges: 5 // Would need separate API
+                }
+            };
+        }
+        return MOCK_USER_PROFILE;
+    }, [backendConnected, userData, sessions]);
+
+    // Update skills from backend data when available
+    useEffect(() => {
+        if (backendConnected && userData?.skills) {
+            const teachingSkills = userData.skills.filter(s => !s.is_learning);
+            const learningSkills = userData.skills.filter(s => s.is_learning);
+
+            if (teachingSkills.length > 0) {
+                setSkillsHave(teachingSkills.map(s => ({
+                    name: s.skill_name,
+                    level: s.proficiency
+                })));
+            }
+            if (learningSkills.length > 0) {
+                setSkillsWant(learningSkills.map(s => ({
+                    name: s.skill_name,
+                    level: s.proficiency
+                })));
+            }
+        }
+    }, [backendConnected, userData]);
 
     const handleMarkForDeletion = (skillName: string, type: "have" | "want") => {
         if (type === "have") {
@@ -312,10 +365,11 @@ export default function ProfilePage() {
                     <div className="flex items-center gap-3">
                         <DefaultAvatar size="sm" />
                         <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">{userProfile.name}</p>
+                            <p className="font-medium truncate">{currentUserName || userProfile.name}</p>
                             <p className="text-xs text-muted-foreground truncate">{userProfile.department}</p>
                         </div>
                     </div>
+                    <BackendStatus className="mt-2" />
                 </div>
             </aside>
 

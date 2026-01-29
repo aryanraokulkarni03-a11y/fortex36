@@ -9,11 +9,13 @@ logger = logging.getLogger(__name__)
 class GraphService:
     def __init__(self):
         self.G = nx.DiGraph()
+        self.users: List[User] = []
         # Events and Sessions moved to dedicated services
 
     def build_graph(self, users: List[User], skills: List[Skill]):
         """Build the knowledge graph from user and skill data"""
         self.G.clear()
+        self.users = users
         
         # Add skill nodes
         for skill in skills:

@@ -26,6 +26,8 @@ import {
     ResponsiveContainer,
 } from "recharts";
 import { getUserByName } from "@/lib/users";
+import { useData } from "@/components/DataProvider";
+import BackendStatus from "@/components/BackendStatus";
 
 const currentUserProfile = {
     name: "Kushaan Parekh",
@@ -42,9 +44,10 @@ const getLevelFromPercentage = (percentage: number): string => {
     return "Expert";
 };
 
-export default function UserProfilePage({ params }: { params: { id: string } }) {
+export default function UserProfilePage({ params: _params }: { params: { id: string } }) {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { currentUserName } = useData();
 
     const returnPath = searchParams.get('returnPath') || '/dashboard';
     const name = searchParams.get('name') || 'Unknown User';
@@ -111,10 +114,11 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
                     <div className="flex items-center gap-3">
                         <DefaultAvatar size="sm" />
                         <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">{currentUserProfile.name}</p>
-                            <p className="text-xs text-muted-foreground truncate">{currentUserProfile.department}</p>
+                            <p className="font-medium truncate">{currentUserName || 'User'}</p>
+                            <p className="text-xs text-muted-foreground truncate">CSE</p>
                         </div>
                     </div>
+                    <BackendStatus className="mt-2" />
                 </div>
             </aside>
 

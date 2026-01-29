@@ -3,8 +3,10 @@ SkillSync GraphRAG Microservice
 AI-powered peer matching using knowledge graphs
 """
 
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, HTTPException, Response, status, Depends
+from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
+from typing import Optional
 from contextlib import asynccontextmanager
 import logging
 
@@ -16,6 +18,8 @@ from .services.graph_service import graph_service
 from .services.event_service import EventService
 from .services.session_service import SessionService
 from .services.connection_service import ConnectionService
+from .core.auth import create_access_token, decode_access_token
+from .models import User, Skill, UserSkill, MatchRequest, MatchResult, GraphStats, Event, Session, UserRegisterRequest, UserUpdateRequest, SkillUpdateRequest, SessionBookRequest, ConnectionRequest, ConnectionRequestStatus, LoginRequest
 
 # Initialize Services
 event_service = EventService()
@@ -51,6 +55,8 @@ app = FastAPI(
 
 # Middleware
 app.add_middleware(RequestIDMiddleware)
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login", auto_error=False) # auto_error=False allows optional auth for some endpoints if needed
 
 # CORS Configuration
 app.add_middleware(
@@ -170,18 +176,86 @@ async def get_user_connections(user_id: str):
 
 # ============== USER MANAGEMENT ==============
 
-@app.get("/me")
-async def get_current_user():
-    """Get current user (MVP: returns demo user)"""
-    # In production, extract from JWT/session
+# ============== USER MANAGEMENT ==============
+
+@app.post("/auth/login", response_model=dict)
+async def login_for_access_token(form_data: LoginRequest):
+    """Login and get JWT token"""
+    
+    # Check if user exists (by email) in graph service
+    user_found = None
+    
+    for user in graph_service.users:
+        if user.email == form_data.username:
+            user_found = user
+            break
+            
+    if user_found:
+        user_id = user_found.id
+        username = user_found.name
+    elif form_data.username.endswith("@srmap.edu.in"):
+        import uuid
+        user_id = f"u{uuid.uuid4().hex[:8]}"
+        username = form_data.username.split("@")[0].title()
+    else:
+         raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials. Use an @srmap.edu.in email.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    access_token = create_access_token(
+        data={"sub": form_data.username, "id": user_id, "name": username}
+    )
+    
     return {
-        "user_id": "u1",
-        "name": "Demo User",
-        "email": "demo@srmap.edu.in",
-        "year": 3,
-        "branch": "CSE",
-        "authenticated": False,
-        "message": "MVP mode - no auth required"
+        "access_token": access_token, 
+        "token_type": "bearer",
+        "user": {
+            "id": user_id,
+            "name": username,
+            "email": form_data.username,
+            "avatar": f"https://api.dicebear.com/7.x/initials/svg?seed={username}"
+        }
+    }
+
+@app.get("/me")
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    """Get current user (Authenticated)"""
+    if not token:
+         raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    payload = decode_access_token(token)
+    if not payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    user_id = payload.get("id")
+    email = payload.get("sub")
+    
+    user_node = f"user:{user_id}"
+    if user_node in graph_service.G.nodes():
+        node_data = graph_service.G.nodes[user_node]
+        return {
+            "user_id": user_id,
+            "name": node_data.get("name"),
+            "email": email,
+            "year": node_data.get("year", 1),
+            "branch": node_data.get("branch", "Unknown"),
+            "authenticated": True
+        }
+    
+    return {
+        "user_id": user_id,
+        "name": payload.get("name", "Guest"),
+        "email": email,
+        "year": 1,
+        "branch": "General",
+        "authenticated": True,
+        "message": "User not in graph yet"
     }
 
 @app.post("/user/register")
@@ -535,6 +609,15 @@ async def seed_demo_data():
                 UserSkill(user_id="u5", skill_id="8", skill_name="DSA", proficiency=5, is_teaching=True),
                 UserSkill(user_id="u5", skill_id="6", skill_name="Node.js", proficiency=4, is_teaching=True),
                 UserSkill(user_id="u5", skill_id="9", skill_name="Docker", proficiency=1, is_learning=True),
+            ]
+        ),
+        User(
+            id="u6", name="Kushaan Parekh", email="kushaan_parekh@srmap.edu.in", year=3, branch="CSE",
+            skills=[
+                UserSkill(user_id="u6", skill_id="1", skill_name="Python", proficiency=4, is_teaching=True),
+                UserSkill(user_id="u6", skill_id="3", skill_name="React", proficiency=4, is_teaching=True),
+                UserSkill(user_id="u6", skill_id="4", skill_name="Machine Learning", proficiency=3, is_learning=True),
+                UserSkill(user_id="u6", skill_id="9", skill_name="Docker", proficiency=2, is_learning=True),
             ]
         ),
     ]

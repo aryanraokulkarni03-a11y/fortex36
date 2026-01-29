@@ -107,3 +107,7 @@ class ConnectionRequestStatus(BaseModel):
     message: Optional[str] = None
     status: str  # 'pending', 'accepted', 'rejected'
     created_at: str
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str

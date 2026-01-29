@@ -18,6 +18,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { useState } from "react";
 import DefaultAvatar from "@/components/DefaultAvatar";
+import { useData } from "@/components/DataProvider";
+import BackendStatus from "@/components/BackendStatus";
 
 const userProfile = {
     name: "Kushaan Parekh",
@@ -25,9 +27,10 @@ const userProfile = {
     department: "CSE"
 };
 
-const events = [
+// Mock data for fallback
+const MOCK_EVENTS = [
     {
-        id: 1,
+        id: "1",
         title: "Machine Learning Study Group",
         description: "Weekly ML concepts discussion and problem solving",
         date: "Today",
@@ -39,7 +42,7 @@ const events = [
         host: "Priya Sharma"
     },
     {
-        id: 2,
+        id: "2",
         title: "React Workshop: Building Modern UIs",
         description: "Hands-on workshop on React hooks, state management, and animations",
         date: "Tomorrow",
@@ -51,7 +54,7 @@ const events = [
         host: "Kushaan Parekh"
     },
     {
-        id: 3,
+        id: "3",
         title: "Hackathon Prep Session",
         description: "Team formation and project ideation for upcoming hackathon",
         date: "Saturday",
@@ -63,7 +66,7 @@ const events = [
         host: "Arjun Reddy"
     },
     {
-        id: 4,
+        id: "4",
         title: "Data Structures & Algorithms",
         description: "Weekly DSA practice for placement preparation",
         date: "Sunday",
@@ -75,7 +78,7 @@ const events = [
         host: "Rohit Verma"
     },
     {
-        id: 5,
+        id: "5",
         title: "Cloud Computing 101",
         description: "Introduction to AWS and cloud deployment",
         date: "Next Monday",
@@ -89,10 +92,27 @@ const events = [
 ];
 
 export default function EventsPage() {
-    const [joinedIds, setJoinedIds] = useState<number[]>([]);
+    const [joinedIds, setJoinedIds] = useState<string[]>([]);
     const [showToast, setShowToast] = useState(false);
+    const { backendConnected, events: apiEvents, currentUserName } = useData();
 
-    const handleJoin = (id: number) => {
+    // Map API events to display format, with fallback
+    const displayEvents = backendConnected && apiEvents.length > 0
+        ? apiEvents.map(e => ({
+            id: e.id,
+            title: e.title,
+            description: e.description,
+            date: e.time.split(',')[0] || e.time, // Extract date part
+            time: e.time.split(',')[1]?.trim() || e.time, // Extract time part
+            location: e.location,
+            participants: e.participants,
+            maxParticipants: e.max_participants,
+            tags: e.tags,
+            host: e.host
+        }))
+        : MOCK_EVENTS;
+
+    const handleJoin = (id: string) => {
         if (!joinedIds.includes(id)) {
             setJoinedIds([...joinedIds, id]);
             setShowToast(true);
@@ -150,10 +170,11 @@ export default function EventsPage() {
                     <div className="flex items-center gap-3">
                         <DefaultAvatar size="sm" />
                         <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">{userProfile.name}</p>
+                            <p className="font-medium truncate">{currentUserName || userProfile.name}</p>
                             <p className="text-xs text-muted-foreground truncate">{userProfile.department}</p>
                         </div>
                     </div>
+                    <BackendStatus className="mt-2" />
                 </div>
             </aside>
 
@@ -170,7 +191,7 @@ export default function EventsPage() {
 
                 <div className="p-6">
                     <div className="grid md:grid-cols-2 gap-8">
-                        {events.map((event, index) => (
+                        {displayEvents.map((event, index) => (
                             <motion.div
                                 key={event.id}
                                 initial={{ opacity: 0 }}
@@ -209,7 +230,7 @@ export default function EventsPage() {
                                         </div>
 
                                         <div className="flex flex-wrap gap-2 mb-4">
-                                            {event.tags.map((tag) => (
+                                            {event.tags.map((tag: string) => (
                                                 <Badge key={tag} variant="outline" className="border-primary/50 bg-transparent text-foreground text-xs">
                                                     {tag}
                                                 </Badge>
@@ -242,4 +263,5 @@ export default function EventsPage() {
         </div>
     );
 }
+
 

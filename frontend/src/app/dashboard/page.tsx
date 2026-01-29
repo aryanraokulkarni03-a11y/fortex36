@@ -19,12 +19,15 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DefaultAvatar from "@/components/DefaultAvatar";
 import ClickableAvatar from "@/components/ClickableAvatar";
+import { useData } from "@/components/DataProvider";
+import { useMatches, useCurrentUser } from "@/lib/hooks";
+import BackendStatus from "@/components/BackendStatus";
 
-// Mock data for demonstration
-const userProfile = {
+// Mock data for fallback (when backend is offline)
+const MOCK_PROFILE = {
   name: "Kushaan Parekh",
   email: "kushaan_parekh@srmap.edu.in",
   year: "2nd Year",
@@ -38,9 +41,9 @@ const userProfile = {
   rating: 4.8
 };
 
-const recommendedMatches = [
+const MOCK_MATCHES = [
   {
-    id: 1,
+    id: "1",
     name: "Priya Sharma",
     avatar: "PS",
     department: "CSE",
@@ -54,7 +57,7 @@ const recommendedMatches = [
     sessions: 28
   },
   {
-    id: 2,
+    id: "2",
     name: "Arjun Reddy",
     avatar: "AR",
     department: "AI & DS",
@@ -68,7 +71,7 @@ const recommendedMatches = [
     sessions: 15
   },
   {
-    id: 3,
+    id: "3",
     name: "Sneha Gupta",
     avatar: "SG",
     department: "ECE",
@@ -82,7 +85,7 @@ const recommendedMatches = [
     sessions: 22
   },
   {
-    id: 4,
+    id: "4",
     name: "Rohit Verma",
     avatar: "RV",
     department: "CSE",
@@ -96,7 +99,7 @@ const recommendedMatches = [
     sessions: 35
   },
   {
-    id: 5,
+    id: "5",
     name: "Kavya Nair",
     avatar: "KN",
     department: "IT",
@@ -111,23 +114,23 @@ const recommendedMatches = [
   }
 ];
 
-const upcomingEvents = [
+const MOCK_EVENTS = [
   {
-    id: 1,
+    id: "1",
     title: "ML Study Group",
     date: "Today, 6 PM",
     participants: 12,
     tags: ["Machine Learning", "Python"]
   },
   {
-    id: 2,
+    id: "2",
     title: "React Workshop",
     date: "Tomorrow, 4 PM",
     participants: 25,
     tags: ["React", "Frontend"]
   },
   {
-    id: 3,
+    id: "3",
     title: "Hackathon Prep",
     date: "Sat, 10 AM",
     participants: 8,
@@ -143,6 +146,52 @@ const activityFeed = [
 
 export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const { backendConnected, events, currentUserId } = useData();
+
+  // Fetch real user profile
+  const { data: userData } = useCurrentUser();
+
+  // Fetch matches - searching for first 'want' skill or default to 'Python'
+  const skillToSearch = userData?.skills?.find(s => s.is_learning)?.skill_name || 'Python';
+  const { data: matchesData } = useMatches(currentUserId, skillToSearch);
+
+  // Computed data with fallback
+  const userProfile = backendConnected && userData ? {
+    name: userData.name,
+    email: userData.email,
+    year: `${userData.year}${userData.year === 1 ? 'st' : userData.year === 2 ? 'nd' : userData.year === 3 ? 'rd' : 'th'} Year`,
+    department: userData.branch,
+    avatar: userData.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase(),
+    skillsHave: (userData.skills || []).filter(s => s.is_teaching).map(s => s.skill_name),
+    skillsWant: (userData.skills || []).filter(s => s.is_learning).map(s => s.skill_name),
+    matchScore: MOCK_PROFILE.matchScore, // Not in API yet
+    connectionsCount: MOCK_PROFILE.connectionsCount, // Not in API yet
+    sessionsCompleted: MOCK_PROFILE.sessionsCompleted, // Not in API yet
+    rating: MOCK_PROFILE.rating // Not in API yet
+  } : MOCK_PROFILE;
+
+  const displayEvents = backendConnected && events.length > 0 ? events.map(e => ({
+    id: e.id,
+    title: e.title,
+    date: e.time, // Map 'time' to 'date' for UI consistency
+    participants: e.participants,
+    tags: e.tags
+  })) : MOCK_EVENTS;
+
+  const displayMatches = backendConnected && matchesData && matchesData.length > 0 ? matchesData.map(m => ({
+    id: m.user_id,
+    name: m.name,
+    avatar: m.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase(),
+    department: m.branch,
+    year: `${m.year}${m.year === 1 ? 'st' : m.year === 2 ? 'nd' : m.year === 3 ? 'rd' : 'th'} Year`,
+    matchScore: m.match_score,
+    skillsHave: ["Python", "Machine Learning"], // Backend match doesn't return skills list yet, fallback
+    skillsWant: ["React", "Web Dev"], // Backend match doesn't return skills list yet, fallback
+    connectionDegree: m.connection_degree,
+    mutualConnection: m.connection_path.length > 2 ? m.connection_path[1] : null,
+    rating: 4.8, // Fallback
+    sessions: 12 // Fallback
+  })) : MOCK_MATCHES;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -190,6 +239,7 @@ export default function DashboardPage() {
               <p className="text-xs text-muted-foreground truncate">{userProfile.department}</p>
             </div>
           </div>
+          <BackendStatus className="mt-2" />
         </div>
       </aside>
 
@@ -278,7 +328,7 @@ export default function DashboardPage() {
                   </Link>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {recommendedMatches.map((match) => (
+                  {displayMatches.map((match) => (
                     <div
                       key={match.id}
                       className="p-4 rounded-xl bg-secondary/30"
@@ -308,7 +358,7 @@ export default function DashboardPage() {
                         </div>
                       </div>
                       <div className="mt-3 flex flex-wrap gap-2">
-                        {match.skillsHave.slice(0, 3).map((skill) => (
+                        {match.skillsHave.slice(0, 3).map((skill: string) => (
                           <Badge key={skill} variant="outline" className="border-primary/50 bg-transparent text-foreground text-xs">
                             {skill}
                           </Badge>
@@ -336,7 +386,7 @@ export default function DashboardPage() {
                     <div>
                       <p className="text-sm text-muted-foreground mb-2">I can teach</p>
                       <div className="flex flex-wrap gap-2">
-                        {userProfile.skillsHave.map((skill) => (
+                        {userProfile.skillsHave.map((skill: string) => (
                           <Badge key={skill} variant="outline" className="border-primary/50 bg-transparent text-foreground">
                             {skill}
                           </Badge>
@@ -346,7 +396,7 @@ export default function DashboardPage() {
                     <div>
                       <p className="text-sm text-muted-foreground mb-2">I want to learn</p>
                       <div className="flex flex-wrap gap-2">
-                        {userProfile.skillsWant.map((skill) => (
+                        {userProfile.skillsWant.map((skill: string) => (
                           <Badge key={skill} variant="outline" className="border-primary/50 bg-transparent text-foreground">
                             {skill}
                           </Badge>
@@ -374,7 +424,7 @@ export default function DashboardPage() {
                     </Link>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {upcomingEvents.map((event) => (
+                    {displayEvents.map((event) => (
                       <div
                         key={event.id}
                         className="p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-all cursor-pointer"

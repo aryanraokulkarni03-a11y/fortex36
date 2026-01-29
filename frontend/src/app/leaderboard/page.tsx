@@ -19,6 +19,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import DefaultAvatar from "@/components/DefaultAvatar";
 import ClickableAvatar from "@/components/ClickableAvatar";
+import { useData } from "@/components/DataProvider";
+import BackendStatus from "@/components/BackendStatus";
 
 const userProfile = {
     name: "Kushaan Parekh",
@@ -26,7 +28,8 @@ const userProfile = {
     department: "CSE"
 };
 
-const leaderboardData = [
+// Mock data for fallback
+const MOCK_LEADERBOARD = [
     {
         rank: 1,
         name: "Priya Sharma",
@@ -141,6 +144,25 @@ const getRankIcon = (rank: number) => {
 };
 
 export default function LeaderboardPage() {
+    const { backendConnected, leaderboard: apiLeaderboard, currentUserName, currentUserId } = useData();
+
+    // Map API leaderboard to display format, with fallback
+    const displayLeaderboard = backendConnected && apiLeaderboard.length > 0
+        ? apiLeaderboard.map(entry => ({
+            rank: entry.rank,
+            name: entry.name,
+            avatar: entry.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase(),
+            department: "CSE", // Not in API, default
+            points: entry.score,
+            sessions: entry.skills_teaching * 5, // Derived estimate
+            rating: 4.5 + (entry.total_proficiency / 100) * 0.5, // Derived estimate
+            badges: Math.floor(entry.score / 200),
+            streak: Math.floor(entry.score / 150),
+            trend: `+${Math.floor(Math.random() * 15 + 5)}%`,
+            isCurrentUser: entry.user_id === currentUserId
+        }))
+        : MOCK_LEADERBOARD;
+
     return (
         <div className="min-h-screen bg-background text-foreground">
             <div className="fixed inset-0 hero-gradient pointer-events-none opacity-50 z-0" />
@@ -182,10 +204,11 @@ export default function LeaderboardPage() {
                     <div className="flex items-center gap-3">
                         <DefaultAvatar size="sm" />
                         <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">{userProfile.name}</p>
+                            <p className="font-medium truncate">{currentUserName || userProfile.name}</p>
                             <p className="text-xs text-muted-foreground truncate">{userProfile.department}</p>
                         </div>
                     </div>
+                    <BackendStatus className="mt-2" />
                 </div>
             </aside>
 
@@ -210,7 +233,7 @@ export default function LeaderboardPage() {
                         animate={{ opacity: 1 }}
                         className="grid md:grid-cols-3 gap-4 mb-8"
                     >
-                        {leaderboardData.slice(0, 3).map((user, index) => (
+                        {displayLeaderboard.slice(0, 3).map((user, index) => (
                             <Card
                                 key={user.rank}
                                 className={`glass border-border card-hover overflow-hidden ${index === 0 ? "md:order-2 md:-mt-4" : index === 1 ? "md:order-1" : "md:order-3"}`}
@@ -233,7 +256,7 @@ export default function LeaderboardPage() {
                                     <div className="flex items-center justify-center gap-4 mt-4 text-sm">
                                         <div className="flex items-center gap-1">
                                             <Star className="w-4 h-4 text-[#F59E0B]" />
-                                            <span>{user.rating}</span>
+                                            <span>{user.rating.toFixed(1)}</span>
                                         </div>
                                         <div className="flex items-center gap-1">
                                             <Flame className="w-4 h-4 text-[#EF4444]" />
@@ -256,7 +279,7 @@ export default function LeaderboardPage() {
                                 <CardTitle className="text-lg">Full Rankings</CardTitle>
                             </CardHeader>
                             <CardContent className="divide-y divide-border/50">
-                                {leaderboardData.map((user) => (
+                                {displayLeaderboard.map((user) => (
                                     <div
                                         key={user.rank}
                                         className={`flex items-center gap-4 p-4 transition-all ${user.isCurrentUser
@@ -291,7 +314,7 @@ export default function LeaderboardPage() {
                                             <div className="text-center">
                                                 <p className="font-bold flex items-center gap-1">
                                                     <Star className="w-4 h-4 text-[#F59E0B]" />
-                                                    {user.rating}
+                                                    {user.rating.toFixed(1)}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">Rating</p>
                                             </div>
@@ -322,3 +345,4 @@ export default function LeaderboardPage() {
         </div>
     );
 }
+

@@ -19,10 +19,12 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import DefaultAvatar from "@/components/DefaultAvatar";
 import ClickableAvatar from "@/components/ClickableAvatar";
+import { useData } from "@/components/DataProvider";
+import BackendStatus from "@/components/BackendStatus";
 
 const userProfile = {
     name: "Kushaan Parekh",
@@ -30,9 +32,10 @@ const userProfile = {
     department: "CSE"
 };
 
-const initialMatches = [
+// Mock data for fallback
+const MOCK_MATCHES = [
     {
-        id: 1,
+        id: "1",
         name: "Priya Sharma",
         avatar: "PS",
         department: "CSE",
@@ -46,7 +49,7 @@ const initialMatches = [
         sessions: 28
     },
     {
-        id: 2,
+        id: "2",
         name: "Arjun Reddy",
         avatar: "AR",
         department: "AI & DS",
@@ -60,7 +63,7 @@ const initialMatches = [
         sessions: 15
     },
     {
-        id: 3,
+        id: "3",
         name: "Sneha Gupta",
         avatar: "SG",
         department: "ECE",
@@ -74,7 +77,7 @@ const initialMatches = [
         sessions: 22
     },
     {
-        id: 4,
+        id: "4",
         name: "Rohit Verma",
         avatar: "RV",
         department: "CSE",
@@ -88,7 +91,7 @@ const initialMatches = [
         sessions: 35
     },
     {
-        id: 5,
+        id: "5",
         name: "Kavya Nair",
         avatar: "KN",
         department: "IT",
@@ -102,7 +105,7 @@ const initialMatches = [
         sessions: 10
     },
     {
-        id: 6,
+        id: "6",
         name: "Vikram Patel",
         avatar: "VP",
         department: "CSE",
@@ -116,7 +119,7 @@ const initialMatches = [
         sessions: 18
     },
     {
-        id: 7,
+        id: "7",
         name: "Ananya Das",
         avatar: "AD",
         department: "AI & DS",
@@ -130,7 +133,7 @@ const initialMatches = [
         sessions: 42
     },
     {
-        id: 8,
+        id: "8",
         name: "Rahul Kumar",
         avatar: "RK",
         department: "ECE",
@@ -145,24 +148,86 @@ const initialMatches = [
     }
 ];
 
+interface DisplayMatch {
+    id: string;
+    name: string;
+    avatar: string;
+    department: string;
+    year: string;
+    matchScore: number;
+    skillsHave: string[];
+    skillsWant: string[];
+    connectionDegree: number;
+    mutualConnection: string | null;
+    rating: number;
+    sessions: number;
+}
+
 export default function MatchesPage() {
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState("");
-    const [connectedIds, setConnectedIds] = useState<number[]>([]);
+    const [connectedIds, setConnectedIds] = useState<string[]>([]);
     const [showToast, setShowToast] = useState(false);
+    const [displayMatches, setDisplayMatches] = useState<DisplayMatch[]>(MOCK_MATCHES);
+    const [isSearching, setIsSearching] = useState(false);
 
-    const handleConnect = (id: number) => {
+    const { backendConnected, findMatches, sendConnection, currentUserName, currentUserId } = useData();
+
+    // Fetch matches when component loads or search changes
+    useEffect(() => {
+        const fetchMatches = async () => {
+            if (backendConnected && searchQuery.trim()) {
+                setIsSearching(true);
+                try {
+                    const results = await findMatches(searchQuery.trim());
+                    if (results && results.length > 0) {
+                        const mapped = results.map(m => ({
+                            id: m.user_id,
+                            name: m.name,
+                            avatar: m.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase(),
+                            department: m.branch,
+                            year: `${m.year}${m.year === 1 ? 'st' : m.year === 2 ? 'nd' : m.year === 3 ? 'rd' : 'th'} Year`,
+                            matchScore: m.match_score,
+                            skillsHave: ["Python", "Machine Learning"], // Backend doesn't return skills yet
+                            skillsWant: ["React", "Web Dev"], // Backend doesn't return skills yet
+                            connectionDegree: m.connection_degree,
+                            mutualConnection: m.connection_path.length > 2 ? m.connection_path[1] : null,
+                            rating: 4.5 + (m.proficiency / 20), // Derived
+                            sessions: Math.floor(m.match_score / 3) // Derived
+                        }));
+                        setDisplayMatches(mapped);
+                    }
+                } catch {
+                    console.warn('Failed to fetch matches, using mock data');
+                }
+                setIsSearching(false);
+            } else if (!searchQuery.trim()) {
+                setDisplayMatches(MOCK_MATCHES);
+            }
+        };
+
+        const debounce = setTimeout(fetchMatches, 500);
+        return () => clearTimeout(debounce);
+    }, [searchQuery, backendConnected, findMatches]);
+
+    const handleConnect = async (id: string, matchName: string) => {
         if (!connectedIds.includes(id)) {
+            // Try to send real connection request
+            if (backendConnected) {
+                const requestId = await sendConnection(id, searchQuery || 'General');
+                if (requestId) {
+                    console.log(`Connection request sent: ${requestId}`);
+                }
+            }
             setConnectedIds([...connectedIds, id]);
             setShowToast(true);
             setTimeout(() => setShowToast(false), 3000);
         }
     };
 
-    const handleMessage = (match: typeof initialMatches[0]) => {
-        // Navigate to messages page with match info via query params
+    const handleMessage = (match: DisplayMatch) => {
         const params = new URLSearchParams({
-            userId: match.id.toString(),
+            userId: match.id,
             userName: match.name,
             userAvatar: match.avatar,
         });
@@ -219,10 +284,11 @@ export default function MatchesPage() {
                     <div className="flex items-center gap-3">
                         <DefaultAvatar size="sm" />
                         <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">{userProfile.name}</p>
+                            <p className="font-medium truncate">{currentUserName || userProfile.name}</p>
                             <p className="text-xs text-muted-foreground truncate">{userProfile.department}</p>
                         </div>
                     </div>
+                    <BackendStatus className="mt-2" />
                 </div>
             </aside>
 
@@ -235,11 +301,16 @@ export default function MatchesPage() {
                                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                                 <Input
                                     type="text"
-                                    placeholder="Search by skill, name, or department..."
+                                    placeholder="Search by skill (e.g., Python, React, Machine Learning)..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="pl-12 py-5 bg-secondary/50 border-border focus:border-primary"
                                 />
+                                {isSearching && (
+                                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -259,11 +330,15 @@ export default function MatchesPage() {
                         className="mb-6"
                     >
                         <h1 className="text-3xl font-bold mb-2">Find Your Match</h1>
-                        <p className="text-muted-foreground">AI-powered recommendations based on your skills</p>
+                        <p className="text-muted-foreground">
+                            {backendConnected
+                                ? "AI-powered recommendations based on your skills"
+                                : "Showing demo matches (backend offline)"}
+                        </p>
                     </motion.div>
 
                     <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                        {initialMatches.map((match, index) => (
+                        {displayMatches.map((match, index) => (
                             <motion.div
                                 key={match.id}
                                 initial={{ opacity: 0 }}
@@ -292,7 +367,7 @@ export default function MatchesPage() {
                                         <div className="flex items-center gap-4 mb-4 text-sm">
                                             <div className="flex items-center gap-1">
                                                 <Star className="w-4 h-4 text-[#F59E0B]" />
-                                                <span>{match.rating}</span>
+                                                <span>{match.rating.toFixed(1)}</span>
                                             </div>
                                             <div className="flex items-center gap-1 text-muted-foreground">
                                                 <Users className="w-4 h-4" />
@@ -312,7 +387,7 @@ export default function MatchesPage() {
                                             <div>
                                                 <p className="text-xs text-muted-foreground mb-1">Can teach you</p>
                                                 <div className="flex flex-wrap gap-1">
-                                                    {match.skillsHave.map((skill) => (
+                                                    {match.skillsHave.map((skill: string) => (
                                                         <Badge key={skill} variant="outline" className="border-primary/50 bg-transparent text-muted-foreground text-xs">
                                                             {skill}
                                                         </Badge>
@@ -322,7 +397,7 @@ export default function MatchesPage() {
                                             <div>
                                                 <p className="text-xs text-muted-foreground mb-1">Wants to learn</p>
                                                 <div className="flex flex-wrap gap-1">
-                                                    {match.skillsWant.map((skill) => (
+                                                    {match.skillsWant.map((skill: string) => (
                                                         <Badge key={skill} variant="outline" className="border-primary/50 bg-transparent text-muted-foreground text-xs">
                                                             {skill}
                                                         </Badge>
@@ -338,7 +413,7 @@ export default function MatchesPage() {
                                                     ? "bg-muted text-muted-foreground cursor-default border-border"
                                                     : "border-border text-foreground hover:bg-muted"
                                                     }`}
-                                                onClick={() => handleConnect(match.id)}
+                                                onClick={() => handleConnect(match.id, match.name)}
                                                 disabled={connectedIds.includes(match.id)}
                                             >
                                                 {connectedIds.includes(match.id) ? "Request Sent" : "Connect"}
@@ -361,4 +436,5 @@ export default function MatchesPage() {
         </div>
     );
 }
+
 

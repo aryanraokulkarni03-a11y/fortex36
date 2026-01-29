@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from "next/link";
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -22,9 +23,19 @@ export default function LoginPage() {
             return;
         }
         setIsLoading(true);
-        // Simulate login - in production, this would call your auth API
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        router.push("/dashboard");
+
+        const result = await signIn("credentials", {
+            email,
+            password,
+            redirect: false,
+        });
+
+        if (result?.error) {
+            alert("Login failed. Please check your credentials.");
+            setIsLoading(false);
+        } else {
+            router.push("/dashboard");
+        }
     };
 
     return (
