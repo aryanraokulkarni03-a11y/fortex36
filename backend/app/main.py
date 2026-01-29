@@ -182,27 +182,27 @@ async def get_user_connections(user_id: str):
 async def login_for_access_token(form_data: LoginRequest):
     """Login and get JWT token"""
     
-    # Check if user exists (by email) in graph service
-    user_found = None
+    # STRICT HACKATHON LOGIN CHECK
+    ALLOWED_EMAIL = "kushaan_parekh@srmap.edu.in"
+    ALLOWED_PASS = "kushaan1234"
+
+    if form_data.username != ALLOWED_EMAIL or form_data.password != ALLOWED_PASS:
+         raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Access Denied. Invalid credentials.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # If credentials match, proceed (find user or mock)
+    user_id = "demo_kushaan"
+    username = "Kushaan Parekh"
     
     for user in graph_service.users:
         if user.email == form_data.username:
             user_found = user
+            user_id = user.id
+            username = user.name
             break
-            
-    if user_found:
-        user_id = user_found.id
-        username = user_found.name
-    elif form_data.username.endswith("@srmap.edu.in"):
-        import uuid
-        user_id = f"u{uuid.uuid4().hex[:8]}"
-        username = form_data.username.split("@")[0].title()
-    else:
-         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials. Use an @srmap.edu.in email.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
 
     access_token = create_access_token(
         data={"sub": form_data.username, "id": user_id, "name": username}
