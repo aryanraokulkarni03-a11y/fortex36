@@ -16,7 +16,8 @@ import {
     Trash2,
     Reply,
     Pencil,
-    Copy
+    Copy,
+    Paperclip
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
@@ -111,6 +112,8 @@ export default function MessagesPage() {
     const [editingMessage, setEditingMessage] = useState<Message | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     // Handle new conversation from query params
     useEffect(() => {
@@ -294,12 +297,12 @@ export default function MessagesPage() {
 
             {/* Sidebar */}
             <aside className="fixed left-0 top-0 h-screen w-64 glass border-r border-border p-6 flex flex-col z-20">
-                <Link href="/" className="flex items-center gap-2 mb-8">
+                <div className="flex items-center gap-2 mb-8">
                     <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
                         <Sparkles className="w-5 h-5 text-primary" />
                     </div>
                     <span className="text-3xl font-bold"><span className="text-primary">Skill</span><span className="text-foreground">Sync</span></span>
-                </Link>
+                </div>
 
                 <nav className="space-y-2">
                     {[
@@ -495,7 +498,40 @@ export default function MessagesPage() {
 
                     {/* Message Input */}
                     <div className="p-4 border-t border-border glass">
+                        {/* File preview */}
+                        {selectedFile && (
+                            <div className="mb-3 flex items-center gap-2 px-3 py-2 bg-secondary/50 rounded-lg">
+                                <Paperclip className="w-4 h-4 text-primary" />
+                                <span className="text-sm text-foreground truncate flex-1">{selectedFile.name}</span>
+                                <button
+                                    onClick={() => setSelectedFile(null)}
+                                    className="p-1 hover:bg-secondary/50 rounded-full"
+                                >
+                                    <X className="w-4 h-4 text-muted-foreground" />
+                                </button>
+                            </div>
+                        )}
                         <div className="flex items-center gap-3">
+                            {/* Hidden file input */}
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                className="hidden"
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                        setSelectedFile(file);
+                                    }
+                                }}
+                            />
+                            {/* File upload button */}
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                className="w-10 h-10 rounded-full bg-secondary/50 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                                title="Attach file"
+                            >
+                                <Paperclip className="w-5 h-5" />
+                            </button>
                             <input
                                 ref={inputRef}
                                 type="text"

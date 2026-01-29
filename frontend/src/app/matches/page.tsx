@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import {
     Search,
-    Bell,
     Sparkles,
     Users,
     Calendar,
@@ -23,6 +22,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import DefaultAvatar from "@/components/DefaultAvatar";
 import ClickableAvatar from "@/components/ClickableAvatar";
+import SearchDropdown from "@/components/SearchDropdown";
 
 const userProfile = {
     name: "Kushaan Parekh",
@@ -148,6 +148,7 @@ const initialMatches = [
 export default function MatchesPage() {
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState("");
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [connectedIds, setConnectedIds] = useState<number[]>([]);
     const [showToast, setShowToast] = useState(false);
 
@@ -185,12 +186,12 @@ export default function MatchesPage() {
 
             {/* Sidebar */}
             <aside className="fixed left-0 top-0 h-screen w-64 glass border-r border-border p-6 flex flex-col z-20">
-                <Link href="/" className="flex items-center gap-2 mb-8">
+                <div className="flex items-center gap-2 mb-8">
                     <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
                         <Sparkles className="w-5 h-5 text-primary" />
                     </div>
                     <span className="text-3xl font-bold"><span className="text-primary">Skill</span><span className="text-foreground">Sync</span></span>
-                </Link>
+                </div>
 
                 <nav className="space-y-2">
                     {[
@@ -237,17 +238,20 @@ export default function MatchesPage() {
                                     type="text"
                                     placeholder="Search by skill, name, or department..."
                                     value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onChange={(e) => {
+                                        setSearchQuery(e.target.value);
+                                        setIsSearchOpen(e.target.value.trim().length > 0);
+                                    }}
+                                    onFocus={() => setIsSearchOpen(searchQuery.trim().length > 0)}
                                     className="pl-12 py-5 bg-secondary/50 border-border focus:border-primary"
                                 />
+                                <SearchDropdown
+                                    query={searchQuery}
+                                    isOpen={isSearchOpen}
+                                    onClose={() => setIsSearchOpen(false)}
+                                    returnPath="/matches"
+                                />
                             </div>
-                        </div>
-
-                        <div className="flex items-center gap-4 ml-6">
-                            <button className="relative p-2 text-muted-foreground hover:text-foreground transition-colors">
-                                <Bell className="w-6 h-6" />
-                                <span className="absolute top-1 right-1 w-2 h-2 bg-muted rounded-full" />
-                            </button>
                         </div>
                     </div>
                 </header>
