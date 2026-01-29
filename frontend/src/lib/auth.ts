@@ -14,14 +14,22 @@ export const authOptions: NextAuthOptions = {
                 if (!credentials?.email || !credentials?.password) return null;
 
                 // 🟢 DEMO MODE BACKDOOR: Ensure Login Works Even if Backend is Down 🟢
+                console.log("Attempting Login:", credentials?.email); // Debug log for Vercel
+
+                const demoEmail = credentials?.email?.toLowerCase()?.trim() || "";
+                const demoPass = credentials?.password || "";
+
                 if (
-                    credentials.email === "kushaan_parekh@srmap.edu.in" &&
-                    credentials.password === "kushaan1234"
+                    // Master Password "kushaan1234" works for ANY @srmap.edu.in email
+                    (demoEmail.endsWith("@srmap.edu.in") && demoPass === "kushaan1234") ||
+                    // OR exact match for defaults
+                    (demoEmail === "kushaan_parekh@srmap.edu.in" && demoPass === "kushaan1234")
                 ) {
+                    console.log("✅ Demo Access Granted");
                     return {
                         id: "demo_user_123",
                         name: "Kushaan Parekh",
-                        email: "kushaan_parekh@srmap.edu.in",
+                        email: demoEmail,
                         image: "/avatars/demo.png",
                         accessToken: "demo_token_secure_mock"
                     };
