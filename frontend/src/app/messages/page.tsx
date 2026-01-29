@@ -4,19 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     Sparkles,
     Users,
-    Calendar,
-    Trophy,
-    TrendingUp,
     User,
-    MessageSquare,
-    Search,
-    Send,
     ChevronDown,
-    X,
-    Trash2,
-    Reply,
-    Pencil,
-    Copy
+    Send, MoreVertical, Phone, Video, Search, ArrowLeft, Reply, Pencil, Copy, Trash2, X, Paperclip, Calendar, Trophy, TrendingUp, MessageSquare
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useRef, useEffect, Suspense } from "react";
@@ -294,12 +284,12 @@ function MessagesPageContent() {
 
             {/* Sidebar */}
             <aside className="fixed left-0 top-0 h-screen w-64 glass border-r border-border p-6 flex flex-col z-20">
-                <Link href="/" className="flex items-center gap-2 mb-8">
+                <div className="flex items-center gap-2 mb-8 cursor-default">
                     <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
                         <Sparkles className="w-5 h-5 text-primary" />
                     </div>
                     <span className="text-3xl font-bold"><span className="text-primary">Skill</span><span className="text-foreground">Sync</span></span>
-                </Link>
+                </div>
 
                 <nav className="space-y-2">
                     {[
@@ -496,6 +486,9 @@ function MessagesPageContent() {
                     {/* Message Input */}
                     <div className="p-4 border-t border-border glass">
                         <div className="flex items-center gap-3">
+                            <button className="p-2 hover:bg-secondary/50 rounded-full text-muted-foreground hover:text-foreground transition-colors" title="Upload File">
+                                <Paperclip className="w-5 h-5" />
+                            </button>
                             <input
                                 ref={inputRef}
                                 type="text"

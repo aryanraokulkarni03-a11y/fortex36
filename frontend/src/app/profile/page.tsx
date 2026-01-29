@@ -14,7 +14,8 @@ import {
     Mail,
     GraduationCap,
     User,
-    MessageSquare
+    MessageSquare,
+    LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +32,7 @@ import {
     ResponsiveContainer,
 } from "recharts";
 import { useData } from "@/components/DataProvider";
+import { signOut } from "next-auth/react";
 import { useCurrentUser } from "@/lib/hooks";
 import BackendStatus from "@/components/BackendStatus";
 
@@ -331,12 +333,12 @@ export default function ProfilePage() {
 
             {/* Sidebar */}
             <aside className="fixed left-0 top-0 h-screen w-64 glass border-r border-border p-6 flex flex-col z-20">
-                <Link href="/" className="flex items-center gap-2 mb-8">
+                <div className="flex items-center gap-2 mb-8 cursor-default">
                     <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
                         <Sparkles className="w-5 h-5 text-primary" />
                     </div>
                     <span className="text-3xl font-bold"><span className="text-primary">Skill</span><span className="text-foreground">Sync</span></span>
-                </Link>
+                </div>
 
                 <nav className="space-y-2">
                     {[
@@ -381,14 +383,24 @@ export default function ProfilePage() {
                             <h1 className="text-2xl font-bold">My Profile</h1>
                             <p className="text-sm text-muted-foreground">Manage your skills and preferences</p>
                         </div>
-                        <Button
-                            variant="outline"
-                            className="border-primary/30 text-foreground hover:bg-muted/20"
-                            onClick={() => isEditing ? handleSaveChanges() : setIsEditing(true)}
-                        >
-                            <Edit2 className="w-4 h-4 mr-2" />
-                            {isEditing ? "Save Changes" : "Edit Profile"}
-                        </Button>
+                        <div className="flex items-center gap-3">
+                            <Button
+                                variant="outline"
+                                className="border-primary/30 text-foreground hover:bg-muted/20"
+                                onClick={() => isEditing ? handleSaveChanges() : setIsEditing(true)}
+                            >
+                                <Edit2 className="w-4 h-4 mr-2" />
+                                {isEditing ? "Save Changes" : "Edit Profile"}
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                className="bg-red-500/10 text-red-500 hover:bg-red-500/20 border-red-500/20"
+                                onClick={() => signOut({ callbackUrl: "/login" })}
+                            >
+                                <LogOut className="w-4 h-4 mr-2" />
+                                Logout
+                            </Button>
+                        </div>
                     </div>
                 </header>
 
