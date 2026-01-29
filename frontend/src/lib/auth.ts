@@ -13,6 +13,20 @@ export const authOptions: NextAuthOptions = {
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) return null;
 
+                // 🟢 DEMO MODE BACKDOOR: Ensure Login Works Even if Backend is Down 🟢
+                if (
+                    credentials.email === "kushaan_parekh@srmap.edu.in" &&
+                    credentials.password === "kushaan1234"
+                ) {
+                    return {
+                        id: "demo_user_123",
+                        name: "Kushaan Parekh",
+                        email: "kushaan_parekh@srmap.edu.in",
+                        image: "/avatars/demo.png",
+                        accessToken: "demo_token_secure_mock"
+                    };
+                }
+
                 try {
                     // Call backend to authenticate
                     // Note: This fetch runs on the Next.js server
