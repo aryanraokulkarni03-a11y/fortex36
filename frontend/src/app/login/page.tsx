@@ -39,7 +39,6 @@ export default function LoginPage() {
     };
 
     return (
-    return (
         <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4 relative overflow-hidden">
             {/* Background Effects */}
             <div className="fixed inset-0 hero-gradient pointer-events-none opacity-50 z-0" />
