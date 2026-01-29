@@ -268,6 +268,55 @@ function DashboardContent() {
                   className="pl-12 py-5 bg-secondary/50 border-border focus:border-primary"
                 />
               </div>
+
+              {/* 🟢 DEMO: Mock Search Dropdown 🟢 */}
+              {searchQuery.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="absolute top-full left-0 right-0 mt-2 bg-[#0A0A0A] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 glass"
+                >
+                  <div className="p-2">
+                    {MOCK_MATCHES
+                      .filter(m =>
+                        m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        m.skillsHave.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
+                      )
+                      .map(result => (
+                        <Link
+                          key={result.id}
+                          href={`/profile/${result.id}`}
+                          className="flex items-center gap-4 p-3 hover:bg-white/5 rounded-lg transition-colors group"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+                            {result.avatar}
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-white group-hover:text-primary transition-colors">
+                              {result.name}
+                            </h4>
+                            <p className="text-xs text-white/50">
+                              {result.department} • {result.year}
+                            </p>
+                          </div>
+                          <div className="ml-auto flex gap-2">
+                            {result.skillsHave.slice(0, 2).map(s => (
+                              <span key={s} className="text-[10px] bg-white/5 px-2 py-1 rounded-full text-white/70">
+                                {s}
+                              </span>
+                            ))}
+                          </div>
+                        </Link>
+                      ))
+                    }
+                    {MOCK_MATCHES.filter(m => m.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                      <div className="p-4 text-center text-white/40 text-sm">
+                        No nodes found in local cluster.
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
             </div>
 
             {/* Right Actions */}

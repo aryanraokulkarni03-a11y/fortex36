@@ -43,8 +43,8 @@ export function BackendStatus({ className, minimal = false }: BackendStatusProps
                 {loading
                     ? 'Connecting...'
                     : backendConnected
-                        ? 'Live'
-                        : 'Demo mode'}
+                        ? 'High-Speed Uplink'
+                        : 'Neural Simulation'}
             </span>
             {error && !loading && (
                 <button
